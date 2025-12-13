@@ -143,12 +143,16 @@ export function Home() {
                             {paper.summary}
                           </div>
                           <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-mono">
-                              {paper.id}
-                            </Badge>
-                            <span className="text-[10px] text-muted-foreground ml-auto bg-muted/50 px-1.5 rounded">
-                              {format(parseISO(paper.date), "MMM d")}
-                            </span>
+                            <a 
+                              href={paper.links.project || paper.links.github || "#"} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs text-primary hover:underline flex items-center gap-1 font-medium z-10 relative"
+                            >
+                              Link to original paper
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
                           </div>
                         </div>
                       </button>
