@@ -17,6 +17,7 @@ import {
   Globe, 
   Lightbulb, 
   Target,
+  Zap,
   PanelLeftClose,
   PanelLeftOpen
 } from "lucide-react";
@@ -213,7 +214,7 @@ export function Home() {
 
               <div className="grid gap-6">
                 {/* 1. Summary Card */}
-                <Card className="overflow-hidden border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
+                <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="bg-muted/10 pb-3">
                     <CardTitle className="flex items-center gap-2 text-xl font-display">
                       <Lightbulb className="h-5 w-5 text-primary" />
@@ -230,7 +231,10 @@ export function Home() {
                 {/* 2. Key Points Card */}
                 <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="bg-muted/10 pb-3">
-                    <CardTitle className="text-xl font-display">Key Points</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-xl font-display">
+                      <Target className="h-5 w-5 text-primary" />
+                      Key Points
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
                     <ul className="grid gap-3">
@@ -249,15 +253,15 @@ export function Home() {
                 </Card>
 
                 {/* 3. Impact Card */}
-                <Card className="overflow-hidden border-l-4 border-l-destructive shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader className="bg-destructive/5 pb-3">
-                    <CardTitle className="flex items-center gap-2 text-xl font-display text-destructive">
-                      <Target className="h-5 w-5" />
+                <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-muted/10 pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl font-display">
+                      <Zap className="h-5 w-5 text-primary" />
                       Why This Matters
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
-                     <p className="text-lg text-muted-foreground leading-relaxed italic">
+                     <p className="text-lg text-muted-foreground leading-relaxed italic border-l-4 border-primary/50 pl-4 py-1">
                       "{selectedPaper.impact}"
                     </p>
                   </CardContent>
@@ -266,64 +270,70 @@ export function Home() {
                 {/* 4. Relevant Links Card */}
                 <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                    <CardHeader className="bg-muted/10 pb-3">
-                    <CardTitle className="text-xl font-display">Relevant Links</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-xl font-display">
+                      <ExternalLink className="h-5 w-5 text-primary" />
+                      Relevant Links
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <ul className="grid gap-3">
                       {selectedPaper.links.project && (
-                        <a 
-                          href={selectedPaper.links.project} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 hover:border-primary/50 transition-all group"
-                        >
-                          <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
-                            <Globe className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold truncate">Project Page</div>
-                            <div className="text-xs text-muted-foreground truncate">Official Website</div>
-                          </div>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                        </a>
+                        <li>
+                          <a 
+                            href={selectedPaper.links.project} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
+                          >
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                              <Globe className="h-3.5 w-3.5" />
+                            </div>
+                            <span className="text-muted-foreground font-medium group-hover:text-foreground transition-colors">
+                              Project Page: Official Website
+                            </span>
+                            <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </a>
+                        </li>
                       )}
 
                       {selectedPaper.links.github && (
-                        <a 
-                          href={selectedPaper.links.github} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 hover:border-primary/50 transition-all group"
-                        >
-                          <div className="h-10 w-10 rounded-full bg-stone-500/10 flex items-center justify-center text-stone-600 dark:text-stone-400 group-hover:scale-110 transition-transform">
-                            <Github className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold truncate">Repository</div>
-                            <div className="text-xs text-muted-foreground truncate">View Code</div>
-                          </div>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                        </a>
+                        <li>
+                          <a 
+                            href={selectedPaper.links.github} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
+                          >
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-500/10 text-stone-600 dark:text-stone-400 group-hover:bg-stone-800 group-hover:text-white transition-colors">
+                              <Github className="h-3.5 w-3.5" />
+                            </div>
+                            <span className="text-muted-foreground font-medium group-hover:text-foreground transition-colors">
+                              Repository: View Code
+                            </span>
+                            <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </a>
+                        </li>
                       )}
 
                       {selectedPaper.links.data && (
-                        <a 
-                          href={selectedPaper.links.data} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 hover:border-primary/50 transition-all group"
-                        >
-                          <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-600 group-hover:scale-110 transition-transform">
-                            <Database className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold truncate">Dataset</div>
-                            <div className="text-xs text-muted-foreground truncate">Hugging Face</div>
-                          </div>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                        </a>
+                        <li>
+                          <a 
+                            href={selectedPaper.links.data} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
+                          >
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-600 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                              <Database className="h-3.5 w-3.5" />
+                            </div>
+                            <span className="text-muted-foreground font-medium group-hover:text-foreground transition-colors">
+                              Dataset: Hugging Face
+                            </span>
+                            <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </a>
+                        </li>
                       )}
-                    </div>
+                    </ul>
                   </CardContent>
                 </Card>
 
