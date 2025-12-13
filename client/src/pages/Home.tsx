@@ -59,7 +59,19 @@ export function Home() {
           >
             <div className="w-[400px] flex flex-col h-full"> {/* Fixed width container to prevent content squashing */}
               <div className="p-4 border-b space-y-4">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-display font-bold text-lg">Filters</span>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="shrink-0"
+                  >
+                    <PanelLeftClose className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2">
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -82,14 +94,6 @@ export function Home() {
                       />
                     </PopoverContent>
                   </Popover>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="shrink-0"
-                  >
-                    <PanelLeftClose className="h-4 w-4" />
-                  </Button>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
