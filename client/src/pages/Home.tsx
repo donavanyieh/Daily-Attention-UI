@@ -261,8 +261,8 @@ export function Home() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
-                     <p className="text-lg text-muted-foreground leading-relaxed italic border-l-4 border-primary/50 pl-4 py-1">
-                      "{selectedPaper.impact}"
+                     <p className="text-lg text-muted-foreground leading-relaxed">
+                      {selectedPaper.impact}
                     </p>
                   </CardContent>
                 </Card>
