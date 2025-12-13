@@ -16,7 +16,9 @@ import {
   Database, 
   Globe, 
   Lightbulb, 
-  Target 
+  Target,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,6 +29,7 @@ export function Home() {
   const [date, setDate] = useState<Date | undefined>(new Date("2023-12-06"));
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPaperId, setSelectedPaperId] = useState<string | null>(mockPapers[0]?.id || null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const filteredPapers = useMemo(() => {
     return mockPapers.filter(paper => {
@@ -43,98 +46,141 @@ export function Home() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background relative">
       {/* Sidebar */}
-      <aside className="w-full md:w-[400px] border-r bg-muted/10 flex flex-col shrink-0">
-        <div className="p-4 border-b space-y-4">
-          <div className="flex items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Filter papers..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-            {filteredPapers.length} Updates
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="flex flex-col p-2 gap-2">
-            {filteredPapers.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-sm">
-                No updates found for this date.
-                <br />
-                Try selecting a different date.
+      <AnimatePresence initial={false} mode="popLayout">
+        {isSidebarOpen && (
+          <motion.aside
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 400, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="border-r bg-muted/10 flex flex-col shrink-0 overflow-hidden whitespace-nowrap"
+          >
+            <div className="w-[400px] flex flex-col h-full"> {/* Fixed width container to prevent content squashing */}
+              <div className="p-4 border-b space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="md:hidden"
+                  >
+                    <PanelLeftClose className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Filter papers..."
+                    className="pl-8"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                  {filteredPapers.length} Updates
+                </div>
               </div>
-            ) : (
-              filteredPapers.map((paper: Paper) => (
-                <button
-                  key={paper.id}
-                  onClick={() => setSelectedPaperId(paper.id)}
-                  className={cn(
-                    "flex flex-col items-start gap-2 rounded-lg p-4 text-left text-sm transition-all hover:bg-muted group",
-                    selectedPaperId === paper.id 
-                      ? "bg-primary/10 hover:bg-primary/15 border-l-2 border-primary" 
-                      : "bg-transparent border-l-2 border-transparent"
+
+              <ScrollArea className="flex-1">
+                <div className="flex flex-col p-2 gap-2">
+                  {filteredPapers.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground text-sm">
+                      No updates found for this date.
+                      <br />
+                      Try selecting a different date.
+                    </div>
+                  ) : (
+                    filteredPapers.map((paper: Paper) => (
+                      <button
+                        key={paper.id}
+                        onClick={() => setSelectedPaperId(paper.id)}
+                        className={cn(
+                          "flex flex-col items-start gap-2 rounded-lg p-4 text-left text-sm transition-all hover:bg-muted group whitespace-normal",
+                          selectedPaperId === paper.id 
+                            ? "bg-primary/10 hover:bg-primary/15 border-l-2 border-primary" 
+                            : "bg-transparent border-l-2 border-transparent"
+                        )}
+                      >
+                        <div className="flex w-full flex-col gap-1">
+                          <div className="flex items-center justify-between w-full">
+                            <span className={cn(
+                              "font-bold line-clamp-2 leading-tight group-hover:text-primary transition-colors",
+                              selectedPaperId === paper.id ? "text-primary" : "text-foreground"
+                            )}>
+                              {paper.title}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground line-clamp-2 mt-1 font-medium">
+                            {paper.summary}
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-mono">
+                              {paper.id}
+                            </Badge>
+                            <span className="text-[10px] text-muted-foreground ml-auto bg-muted/50 px-1.5 rounded">
+                              {format(parseISO(paper.date), "MMM d")}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    ))
                   )}
-                >
-                  <div className="flex w-full flex-col gap-1">
-                    <div className="flex items-center justify-between w-full">
-                      <span className={cn(
-                        "font-bold line-clamp-2 leading-tight group-hover:text-primary transition-colors",
-                        selectedPaperId === paper.id ? "text-primary" : "text-foreground"
-                      )}>
-                        {paper.title}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground line-clamp-2 mt-1 font-medium">
-                      {paper.summary}
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-mono">
-                        {paper.id}
-                      </Badge>
-                      <span className="text-[10px] text-muted-foreground ml-auto bg-muted/50 px-1.5 rounded">
-                        {format(parseISO(paper.date), "MMM d")}
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        </ScrollArea>
-      </aside>
+                </div>
+              </ScrollArea>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-background p-6 md:p-10">
+      <main className="flex-1 overflow-y-auto bg-background p-6 md:p-10 relative">
+        <div className="absolute top-4 left-4 z-10">
+           {!isSidebarOpen && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsSidebarOpen(true)}
+              className="bg-background/80 backdrop-blur-sm shadow-sm"
+            >
+              <PanelLeftOpen className="h-4 w-4" />
+            </Button>
+           )}
+           {isSidebarOpen && (
+             <Button
+               variant="ghost"
+               size="icon"
+               onClick={() => setIsSidebarOpen(false)}
+               className="text-muted-foreground hover:text-foreground hidden md:flex absolute -left-12 top-0"
+             >
+               <PanelLeftClose className="h-4 w-4" />
+             </Button>
+           )}
+        </div>
+
         <AnimatePresence mode="wait">
           {selectedPaper ? (
             <motion.div
