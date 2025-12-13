@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function Home() {
   const [location, setLocation] = useLocation();
@@ -142,7 +143,7 @@ export function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="max-w-4xl mx-auto space-y-8"
+              className="max-w-3xl mx-auto space-y-8"
             >
               <div className="space-y-4 border-b pb-8">
                 <div className="flex flex-wrap gap-2">
@@ -170,28 +171,32 @@ export function Home() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-[1fr_280px] gap-8">
-                <div className="space-y-8">
-                  {/* Summary Section */}
-                  <section className="space-y-4">
-                    <h2 className="text-2xl font-display font-bold flex items-center gap-2">
-                      <Lightbulb className="h-6 w-6 text-primary" />
+              <div className="grid gap-6">
+                {/* 1. Summary Card */}
+                <Card className="overflow-hidden border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-muted/10 pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl font-display">
+                      <Lightbulb className="h-5 w-5 text-primary" />
                       Generated Summary
-                    </h2>
-                    <div className="prose prose-stone dark:prose-invert max-w-none">
-                      <p className="text-lg leading-relaxed text-foreground/90 font-medium">
-                        {selectedPaper.summary}
-                      </p>
-                    </div>
-                  </section>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <p className="text-lg leading-relaxed text-foreground/90 font-medium">
+                      {selectedPaper.summary}
+                    </p>
+                  </CardContent>
+                </Card>
 
-                  {/* Key Points Section */}
-                  <section className="space-y-4 bg-muted/30 p-6 rounded-xl border">
-                    <h3 className="text-xl font-display font-bold">Key Points</h3>
-                    <ul className="space-y-3">
+                {/* 2. Key Points Card */}
+                <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-muted/10 pb-3">
+                    <CardTitle className="text-xl font-display">Key Points</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <ul className="grid gap-3">
                       {selectedPaper.keyPoints.map((point: string, i: number) => (
                         <li key={i} className="flex items-start gap-3">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary ring-1 ring-primary/30">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary ring-1 ring-primary/30 mt-0.5">
                             {i + 1}
                           </span>
                           <span className="text-muted-foreground leading-relaxed">
@@ -200,56 +205,46 @@ export function Home() {
                         </li>
                       ))}
                     </ul>
-                  </section>
+                  </CardContent>
+                </Card>
 
-                  {/* Impact Section */}
-                  <section className="space-y-4">
-                    <h3 className="text-xl font-display font-bold flex items-center gap-2">
-                      <Target className="h-5 w-5 text-destructive" />
+                {/* 3. Impact Card */}
+                <Card className="overflow-hidden border-l-4 border-l-destructive shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-destructive/5 pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl font-display text-destructive">
+                      <Target className="h-5 w-5" />
                       Why This Matters
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed border-l-4 border-destructive/50 pl-4 py-1 italic">
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                     <p className="text-lg text-muted-foreground leading-relaxed italic">
                       "{selectedPaper.impact}"
                     </p>
-                  </section>
-                  
-                  {/* Original Abstract Accordion style */}
-                  <section className="pt-4">
-                    <details className="group">
-                      <summary className="flex cursor-pointer items-center gap-2 font-medium text-muted-foreground hover:text-foreground">
-                        <span>Read Original Abstract</span>
-                        <span className="transition-transform group-open:rotate-180">▼</span>
-                      </summary>
-                      <p className="mt-4 text-sm text-muted-foreground leading-relaxed bg-muted/20 p-4 rounded-lg">
-                        {selectedPaper.abstract}
-                      </p>
-                    </details>
-                  </section>
-                </div>
+                  </CardContent>
+                </Card>
 
-                {/* Sidebar Links */}
-                <aside className="space-y-6">
-                  <div className="p-5 rounded-xl bg-card border shadow-sm space-y-4 sticky top-4">
-                    <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">
-                      Relevant Links
-                    </h3>
-                    
-                    <div className="space-y-3">
+                {/* 4. Relevant Links Card */}
+                <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                   <CardHeader className="bg-muted/10 pb-3">
+                    <CardTitle className="text-xl font-display">Relevant Links</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {selectedPaper.links.project && (
                         <a 
                           href={selectedPaper.links.project} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
+                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 hover:border-primary/50 transition-all group"
                         >
-                          <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                            <Globe className="h-4 w-4" />
+                          <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                            <Globe className="h-5 w-5" />
                           </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">Project Page</div>
-                            <div className="text-xs text-muted-foreground">Official Website</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold truncate">Project Page</div>
+                            <div className="text-xs text-muted-foreground truncate">Official Website</div>
                           </div>
-                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                         </a>
                       )}
 
@@ -258,16 +253,16 @@ export function Home() {
                           href={selectedPaper.links.github} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
+                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 hover:border-primary/50 transition-all group"
                         >
-                          <div className="h-8 w-8 rounded-full bg-stone-500/10 flex items-center justify-center text-stone-600 dark:text-stone-400 group-hover:bg-stone-800 group-hover:text-white transition-colors">
-                            <Github className="h-4 w-4" />
+                          <div className="h-10 w-10 rounded-full bg-stone-500/10 flex items-center justify-center text-stone-600 dark:text-stone-400 group-hover:scale-110 transition-transform">
+                            <Github className="h-5 w-5" />
                           </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">Repository</div>
-                            <div className="text-xs text-muted-foreground">View Code</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold truncate">Repository</div>
+                            <div className="text-xs text-muted-foreground truncate">View Code</div>
                           </div>
-                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                         </a>
                       )}
 
@@ -276,22 +271,40 @@ export function Home() {
                           href={selectedPaper.links.data} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
+                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 hover:border-primary/50 transition-all group"
                         >
-                          <div className="h-8 w-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-600 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
-                            <Database className="h-4 w-4" />
+                          <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-600 group-hover:scale-110 transition-transform">
+                            <Database className="h-5 w-5" />
                           </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">Dataset</div>
-                            <div className="text-xs text-muted-foreground">Hugging Face</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold truncate">Dataset</div>
+                            <div className="text-xs text-muted-foreground truncate">Hugging Face</div>
                           </div>
-                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                         </a>
                       )}
                     </div>
-                  </div>
-                </aside>
+                  </CardContent>
+                </Card>
+
+                {/* Original Abstract Accordion (at the bottom) */}
+                <div className="pt-4">
+                  <details className="group">
+                    <summary className="flex cursor-pointer items-center gap-2 font-medium text-muted-foreground hover:text-foreground select-none">
+                      <span>Read Original Abstract</span>
+                      <span className="transition-transform group-open:rotate-180">▼</span>
+                    </summary>
+                    <Card className="mt-4 border-dashed">
+                      <CardContent className="pt-6">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {selectedPaper.abstract}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </details>
+                </div>
               </div>
+
             </motion.div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
