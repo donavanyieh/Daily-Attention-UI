@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { BookOpen } from "lucide-react";
+import { Zap } from "lucide-react";
 
 export function Header() {
   return (
@@ -8,16 +8,16 @@ export function Header() {
         <Link href="/">
           <a className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="bg-primary/10 p-1.5 rounded-md">
-              <BookOpen className="h-5 w-5 text-primary" />
+              <Zap className="h-5 w-5 text-primary" />
             </div>
             <span className="text-xl font-display font-bold tracking-tight">
-              HF <span className="text-primary">Daily</span>
+              TechNews<span className="text-primary">Now</span>
             </span>
           </a>
         </Link>
         
         <div className="text-sm text-muted-foreground font-medium hidden sm:block">
-          Research Consolidation Tool
+          AI Research Summaries & Insights
         </div>
       </div>
     </header>
