@@ -86,7 +86,7 @@ export function Home() {
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setIsSidebarOpen(false)}
-                    className="md:hidden"
+                    className="shrink-0"
                   >
                     <PanelLeftClose className="h-4 w-4" />
                   </Button>
@@ -168,16 +168,6 @@ export function Home() {
             >
               <PanelLeftOpen className="h-4 w-4" />
             </Button>
-           )}
-           {isSidebarOpen && (
-             <Button
-               variant="ghost"
-               size="icon"
-               onClick={() => setIsSidebarOpen(false)}
-               className="text-muted-foreground hover:text-foreground hidden md:flex absolute -left-12 top-0"
-             >
-               <PanelLeftClose className="h-4 w-4" />
-             </Button>
            )}
         </div>
 
