@@ -59,7 +59,8 @@ export function Home() {
     return papers.filter((paper) => {
       const matchesDate = date ? isSameDay(parseISO(paper.date), date) : true;
       const matchesSearch = paper.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           paper.summary.toLowerCase().includes(searchQuery.toLowerCase());
+                           paper.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           paper.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesDate && matchesSearch;
     });
   }, [papers, date, searchQuery]);

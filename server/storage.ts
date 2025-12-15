@@ -1,38 +1,78 @@
-import Database from "better-sqlite3";
-import { resolve } from "path";
+import { BigQuery } from "@google-cloud/bigquery";
 import type { Paper } from "@shared/types";
 
 export interface IStorage {
   getAllPapers(): Promise<Paper[]>;
 }
 
-export class MemStorage implements IStorage {
-  private db: Database.Database;
+export class BigQueryStorage implements IStorage {
+  private bigquery: BigQuery;
+  private projectId: string;
+  private datasetId: string;
+  private tableId: string;
 
   constructor() {
-    // Initialize SQLite database connection
-    const dbPath = resolve(process.cwd(), "papers.db");
-    this.db = new Database(dbPath);
+    // Load environment variables
+    const serviceAccountJson = process.env.GBQ_SERVICE_ACCOUNT;
+    this.projectId = process.env.GBQ_PROJECT_ID || "";
+    this.datasetId = process.env.GBQ_DATASET || "";
+    this.tableId = process.env.GBQ_TABLE || "";
+
+    if (!serviceAccountJson || !this.projectId || !this.datasetId || !this.tableId) {
+      throw new Error(
+        "Missing required BigQuery environment variables: GBQ_SERVICE_ACCOUNT, GBQ_PROJECT_ID, GBQ_DATASET, GBQ_TABLE"
+      );
+    }
+
+    // Parse service account credentials from JSON string
+    const credentials = JSON.parse(serviceAccountJson);
+
+    // Initialize BigQuery client
+    this.bigquery = new BigQuery({
+      projectId: this.projectId,
+      credentials: credentials,
+    });
   }
 
   async getAllPapers(): Promise<Paper[]> {
-    const stmt = this.db.prepare("SELECT * FROM papers ORDER BY date DESC");
-    const rows = stmt.all() as any[];
-    
-    return rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      authors: JSON.parse(row.authors),
-      abstract: row.abstract,
-      summary: row.summary,
-      keyPoints: JSON.parse(row.keyPoints),
-      impact: row.impact,
-      links: JSON.parse(row.links),
-      date: row.date,
-      upvotes: row.upvotes,
-      tags: JSON.parse(row.tags),
-    }));
+    try {
+      const query = `
+        SELECT 
+          id,
+          title,
+          authors,
+          abstract,
+          summary,
+          keyPoints,
+          impact,
+          links,
+          date,
+          upvotes,
+          tags
+        FROM \`${this.projectId}.${this.datasetId}.${this.tableId}\`
+        ORDER BY date DESC
+      `;
+
+      const [rows] = await this.bigquery.query({ query });
+
+      return rows.map((row: any) => ({
+        id: row.id,
+        title: row.title,
+        authors: typeof row.authors === "string" ? JSON.parse(row.authors) : row.authors,
+        abstract: row.abstract,
+        summary: row.summary,
+        keyPoints: typeof row.keyPoints === "string" ? JSON.parse(row.keyPoints) : row.keyPoints,
+        impact: row.impact,
+        links: typeof row.links === "string" ? JSON.parse(row.links) : row.links,
+        date: row.date,
+        upvotes: row.upvotes,
+        tags: typeof row.tags === "string" ? JSON.parse(row.tags) : row.tags,
+      }));
+    } catch (error) {
+      console.error("Error querying BigQuery:", error);
+      throw new Error(`Failed to fetch papers from BigQuery: ${error}`);
+    }
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new BigQueryStorage();

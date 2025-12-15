@@ -368,8 +368,6 @@ def init_database():
     
     # Show sample
     cursor.execute('SELECT id, title FROM papers LIMIT 3')
-    samples = cursor.fetchall()
-    print("\n📄 Sample papers:")
     
     conn.close()
 
