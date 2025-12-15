@@ -1,4 +1,4 @@
-c# Daily Attention: TLDR of Daily AI developments in research 
+# Daily Attention: TLDR of Daily AI developments in research 
 <img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/67125b64-9f7a-48b5-ab87-511fb466825d" /><br>
 Part 1 of my dream of deploying a Research Paper Aggregator site. The idea is to scrape research papers daily and summarize key points. Probably been done before, but it's in a format I like. Sweet and simple, showing:
 <ul>
@@ -48,4 +48,4 @@ npm install -g win-node-env
 ```
 
 # Disclaimer
-UI is vibe coded. You have to define your own db, either locally, or using BigQuery. Either way, it's your own DB, and I have no access to it.
+UI is vibe coded, I can't guarantee scalability or code cleanliness. You have to define your own db, either locally, or using BigQuery. Either way, it's your own DB, and I have no access to it.
