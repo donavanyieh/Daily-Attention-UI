@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
-import { useLocation } from "wouter";
-import { mockPapers, Paper } from "@/data/mockPapers";
+import { useState, useMemo, useEffect } from "react";
+import { type Paper } from "@shared/types";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -17,169 +17,186 @@ import {
   Globe, 
   Lightbulb, 
   Target,
-  Zap,
-  PanelLeftClose,
-  PanelLeftOpen
+  Zap
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function Home() {
-  const [location, setLocation] = useLocation();
-  const [date, setDate] = useState<Date | undefined>(new Date("2023-12-06"));
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedPaperId, setSelectedPaperId] = useState<string | null>(mockPapers[0]?.id || null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null);
+
+  // Fetch papers from API
+  const { data: papers = [] } = useQuery<Paper[]>({
+    queryKey: ["/api/papers"],
+    queryFn: async () => {
+      const response = await fetch("/api/papers");
+      if (!response.ok) {
+        throw new Error("Failed to fetch papers");
+      }
+      return response.json();
+    },
+  });
+
+  // Set default to latest date with papers and select first paper
+  useEffect(() => {
+    if (papers.length > 0 && !date) {
+      // Find the most recent paper date
+      const sortedPapers = [...papers].sort((a, b) => 
+        parseISO(b.date).getTime() - parseISO(a.date).getTime()
+      );
+      const latestDate = parseISO(sortedPapers[0].date);
+      setDate(latestDate);
+      
+      // Select the first paper from that date
+      setSelectedPaperId(sortedPapers[0].id);
+    }
+  }, [papers, date]);
 
   const filteredPapers = useMemo(() => {
-    return mockPapers.filter(paper => {
+    return papers.filter((paper) => {
       const matchesDate = date ? isSameDay(parseISO(paper.date), date) : true;
       const matchesSearch = paper.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                            paper.summary.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesDate && matchesSearch;
     });
-  }, [date, searchQuery]);
+  }, [papers, date, searchQuery]);
 
   const selectedPaper = useMemo(() => 
-    mockPapers.find(p => p.id === selectedPaperId), 
-    [selectedPaperId]
+    papers.find((p) => p.id === selectedPaperId), 
+    [papers, selectedPaperId]
   );
+
+  // Get unique dates that have papers
+  const datesWithPapers = useMemo(() => {
+    const dates = papers.map((paper) => {
+      const paperDate = parseISO(paper.date);
+      // Normalize to start of day for comparison
+      return new Date(paperDate.getFullYear(), paperDate.getMonth(), paperDate.getDate());
+    });
+    return dates;
+  }, [papers]);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background relative">
-      {/* Sidebar */}
-      <AnimatePresence initial={false} mode="popLayout">
-        {isSidebarOpen && (
-          <motion.aside
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 400, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="border-r bg-muted/10 flex flex-col shrink-0 overflow-hidden whitespace-nowrap"
-          >
-            <div className="w-[400px] flex flex-col h-full"> {/* Fixed width container to prevent content squashing */}
-              <div className="p-4 border-b space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="font-display font-bold text-lg">Filters</span>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="shrink-0"
-                  >
-                    <PanelLeftClose className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Filter papers..."
-                    className="pl-8"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-                  {filteredPapers.length} Updates
-                </div>
-              </div>
-
-              <ScrollArea className="flex-1">
-                <div className="flex flex-col p-2 gap-2">
-                  {filteredPapers.length === 0 ? (
-                    <div className="p-8 text-center text-muted-foreground text-sm">
-                      No updates found for this date.
-                      <br />
-                      Try selecting a different date.
-                    </div>
-                  ) : (
-                    filteredPapers.map((paper: Paper) => (
-                      <button
-                        key={paper.id}
-                        onClick={() => setSelectedPaperId(paper.id)}
-                        className={cn(
-                          "flex flex-col items-start gap-2 rounded-lg p-4 text-left text-sm transition-all hover:bg-muted group whitespace-normal",
-                          selectedPaperId === paper.id 
-                            ? "bg-primary/10 hover:bg-primary/15 border-l-2 border-primary" 
-                            : "bg-transparent border-l-2 border-transparent"
-                        )}
-                      >
-                        <div className="flex w-full flex-col gap-1">
-                          <div className="flex items-center justify-between w-full">
-                            <span className={cn(
-                              "font-bold line-clamp-2 leading-tight group-hover:text-primary transition-colors",
-                              selectedPaperId === paper.id ? "text-primary" : "text-foreground"
-                            )}>
-                              {paper.title}
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground line-clamp-2 mt-1 font-medium">
-                            {paper.summary}
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <a 
-                              href={paper.links.project || paper.links.github || "#"} 
-                              target="_blank" 
-                              rel="noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-xs text-primary hover:underline flex items-center gap-1 font-medium z-10 relative"
-                            >
-                              Link to original paper
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          </div>
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
+      {/* Sidebar - Always Visible */}
+      <aside className="w-[400px] border-r bg-muted/10 flex flex-col shrink-0">
+        <div className="flex flex-col h-full">
+          <div className="p-4 border-b space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="font-display font-bold text-lg">Filters</span>
             </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-4" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    disabled={(date) => date > new Date()}
+                    modifiers={{
+                      hasPapers: datesWithPapers
+                    }}
+                    modifiersClassNames={{
+                      hasPapers: "has-papers"
+                    }}
+                    className="calendar-expanded"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Filter papers..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              {filteredPapers.length} Papers found
+            </div>
+          </div>
+
+          <ScrollArea className="flex-1">
+            <div className="flex flex-col p-2 gap-2">
+              {filteredPapers.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground text-sm">
+                  No updates found for this date.
+                  <br />
+                  Try selecting a different date.
+                </div>
+              ) : (
+                filteredPapers.map((paper) => (
+                  <button
+                    key={paper.id}
+                    onClick={() => setSelectedPaperId(paper.id)}
+                    className={cn(
+                      "flex flex-col items-start gap-2 rounded-lg p-4 text-left text-sm transition-all hover:bg-muted group whitespace-normal",
+                      selectedPaperId === paper.id 
+                        ? "bg-primary/10 hover:bg-primary/15 border-l-2 border-primary" 
+                        : "bg-transparent border-l-2 border-transparent"
+                    )}
+                  >
+                    <div className="flex w-full flex-col gap-1">
+                      <div className="flex items-center justify-between w-full">
+                        <span className={cn(
+                          "font-bold line-clamp-2 leading-tight group-hover:text-primary transition-colors",
+                          selectedPaperId === paper.id ? "text-primary" : "text-foreground"
+                        )}>
+                          {paper.title}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground line-clamp-2 mt-1 font-medium">
+                        {paper.summary}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {paper.tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <a 
+                          href={paper.links.project || paper.links.github || "#"} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs text-primary hover:underline flex items-center gap-1 font-medium z-10 relative"
+                        >
+                          Link to original paper
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+      </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-background p-6 md:p-10 relative">
-        <div className="absolute top-4 left-4 z-10">
-           {!isSidebarOpen && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setIsSidebarOpen(true)}
-              className="bg-background/80 backdrop-blur-sm shadow-sm"
-            >
-              <PanelLeftOpen className="h-4 w-4" />
-            </Button>
-           )}
-        </div>
-
         <AnimatePresence mode="wait">
           {selectedPaper ? (
             <motion.div
@@ -192,7 +209,7 @@ export function Home() {
             >
               <div className="space-y-4 border-b pb-8">
                 <div className="flex flex-wrap gap-2">
-                  {selectedPaper.tags.map((tag: string) => (
+                  {selectedPaper.tags.map((tag) => (
                     <Badge key={tag} variant="secondary" className="font-mono text-xs">
                       {tag}
                     </Badge>
@@ -208,7 +225,7 @@ export function Home() {
 
                 <div className="flex flex-wrap gap-2 text-sm text-muted-foreground items-center pt-2">
                   <span className="font-medium mr-2">Authors:</span>
-                  {selectedPaper.authors.map((author: string, i: number) => (
+                  {selectedPaper.authors.map((author, i) => (
                     <span key={i} className="bg-muted/30 px-2 py-1 rounded hover:text-foreground transition-colors cursor-default">
                       {author}
                     </span>
@@ -222,7 +239,7 @@ export function Home() {
                   <CardHeader className="bg-muted/10 pb-3">
                     <CardTitle className="flex items-center gap-2 text-xl font-display">
                       <Lightbulb className="h-5 w-5 text-primary" />
-                      Generated Summary
+                      Summary
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
@@ -242,7 +259,7 @@ export function Home() {
                   </CardHeader>
                   <CardContent className="pt-4">
                     <ul className="grid gap-3">
-                      {selectedPaper.keyPoints.map((point: string, i: number) => (
+                      {selectedPaper.keyPoints.map((point, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary ring-1 ring-primary/30 mt-0.5">
                             {i + 1}

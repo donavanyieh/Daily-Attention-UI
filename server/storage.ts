@@ -1,37 +1,37 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import Database from "better-sqlite3";
+import { resolve } from "path";
+import type { Paper } from "@shared/types";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getAllPapers(): Promise<Paper[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private db: Database.Database;
 
   constructor() {
-    this.users = new Map();
+    // Initialize SQLite database connection
+    const dbPath = resolve(process.cwd(), "papers.db");
+    this.db = new Database(dbPath);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getAllPapers(): Promise<Paper[]> {
+    const stmt = this.db.prepare("SELECT * FROM papers ORDER BY date DESC");
+    const rows = stmt.all() as any[];
+    
+    return rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      authors: JSON.parse(row.authors),
+      abstract: row.abstract,
+      summary: row.summary,
+      keyPoints: JSON.parse(row.keyPoints),
+      impact: row.impact,
+      links: JSON.parse(row.links),
+      date: row.date,
+      upvotes: row.upvotes,
+      tags: JSON.parse(row.tags),
+    }));
   }
 }
 

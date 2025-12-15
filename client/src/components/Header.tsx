@@ -11,7 +11,7 @@ export function Header() {
               <Zap className="h-5 w-5 text-primary" />
             </div>
             <span className="text-xl font-display font-bold tracking-tight">
-              TechNews<span className="text-primary">Now</span>
+              Daily <span className="text-primary">Attention</span>
             </span>
           </a>
         </Link>

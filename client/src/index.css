@@ -138,3 +138,52 @@
     @apply font-display tracking-tight;
   }
 }
+
+/* Calendar enhancements */
+.has-papers {
+  position: relative;
+  font-weight: 600 !important;
+}
+
+.has-papers::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: rgb(34, 197, 94);
+}
+
+/* Ensure disabled dates (future dates) are properly grayed */
+button[disabled].has-papers::after {
+  background-color: hsl(var(--muted-foreground));
+  opacity: 0.3;
+}
+
+/* Calendar expanded sizing */
+.calendar-expanded {
+  width: 100%;
+}
+
+.calendar-expanded button {
+  height: 2.75rem;
+  width: 2.75rem;
+  font-size: 0.95rem;
+}
+
+.calendar-expanded .rdp-month {
+  width: 100%;
+}
+
+.calendar-expanded .rdp-table {
+  width: 100%;
+  max-width: none;
+}
+
+.calendar-expanded .rdp-head_cell {
+  font-size: 0.875rem;
+  padding: 0.5rem;
+}
