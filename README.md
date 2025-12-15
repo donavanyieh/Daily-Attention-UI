@@ -1,5 +1,5 @@
 # A daily research paper aggregator site
-<img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/67125b64-9f7a-48b5-ab87-511fb466825d" /><br>
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/67125b64-9f7a-48b5-ab87-511fb466825d" /><br>
 Part 1 of my dream of deploying a Research Paper Aggregator site. The idea is to scrape research papers daily and summarize key points. Probably been done before, but it's in a format I like. Sweet and simple, showing:
 <ul>
 <li>Summary</li>
