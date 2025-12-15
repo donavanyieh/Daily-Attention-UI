@@ -1,7 +1,13 @@
 # A daily research paper aggregator site
-<img width="1901" height="953" alt="image" src="https://github.com/user-attachments/assets/25583a2c-0edf-4e5a-aea0-cdf1bb08d81f" />
-
-Part 1 of my dream of deploying a Research Paper Aggregator site. The idea is to scrape research papers daily and summarize key points. Probably been done before, but it's in a format I like. Sweet and simple, showing summary, key points, tags.
+<img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/67125b64-9f7a-48b5-ab87-511fb466825d" /><br>
+Part 1 of my dream of deploying a Research Paper Aggregator site. The idea is to scrape research papers daily and summarize key points. Probably been done before, but it's in a format I like. Sweet and simple, showing:
+<ul>
+<li>Summary</li>
+<li>Key points</li>
+<li>Why this matters</li>
+<li>Tags</li>
+</ul>
+<b>This is the UI part, and hence all mock data. Part 2 will be the backend, in another repo.</b>
 
 # Motivation
 Automate parts of my day where I browse arxiv and huggingface daily papers to help me keep up to date with latest trends
@@ -9,6 +15,13 @@ Automate parts of my day where I browse arxiv and huggingface daily papers to he
 # What's next
 This is just part 1 - the UI. Next steps comes with me setting up with actual scraping and processing (generate summary, key points, tags etc). Should be a cron job to a database, where this will read from there. Will push the backend once it's in a good place.
 This app uses mock data for now on an sqlite instance. Check out setup
+
+# Access
+I'm trying out deployments with [Render](https://render.com/)<br>
+Link is over here: [Daily Attention deployed on Render](https://daily-attention.onrender.com/)
+<br><br>
+Might be a little slow since I'm on free tier.<br>
+<b>If inaccessible, I likely suspended deployments to not exceed free tier.</b>
 
 # Setup
 1. Just pull the repo
