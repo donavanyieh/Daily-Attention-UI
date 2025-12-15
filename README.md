@@ -7,7 +7,8 @@ Part 1 of my dream of deploying a Research Paper Aggregator site. The idea is to
 <li>Why this matters</li>
 <li>Tags</li>
 </ul>
-<b>This is the UI part, and hence all mock data. Part 2 will be the backend, in another repo.</b>
+<b>This is the UI part, and hence all mock data. Part 2 will be the backend, in another repo.</b><br><br>
+<b>Update: Local sqlite DB is now deprecated in the current version.</b> You have to pull a previous commit version to use init_db. Latest version reads from Google BigQuery
 
 # Motivation
 Automate parts of my day where I browse arxiv and huggingface daily papers to help me keep up to date with latest trends
@@ -25,10 +26,11 @@ Might be a little slow since I'm on free tier.<br>
 
 # Setup
 1. Just pull the repo
-2. Set up database
+2. Set up database <b>IMPT: This step is now deprecated. Latest version uses Google BigQuery</b>. Pull an older version to use local sqlite.
 ```bash
 python database/init_db.py
 ```
+
 3. Build the app
 ```bash
 npm install
