@@ -6,11 +6,7 @@ export interface Paper {
   summary: string;
   keyPoints: string[];
   impact: string;
-  links: {
-    github?: string;
-    data?: string;
-    project?: string;
-  };
+  links: Record<string, string>;
   date: string;
   upvotes: number;
   tags: string[];

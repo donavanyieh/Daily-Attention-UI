@@ -287,62 +287,24 @@ export function Home() {
                   </CardHeader>
                   <CardContent className="pt-4">
                     <ul className="grid gap-3">
-                      {selectedPaper.links.project && (
-                        <li>
-                          <a 
-                            href={selectedPaper.links.project} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
-                          >
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                              <Globe className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-muted-foreground font-medium group-hover:text-foreground transition-colors">
-                              Project Page: Official Website
-                            </span>
-                            <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </a>
+                      {Object.entries(selectedPaper.links).map(([key, url], i) => (
+                        <li key={key} className="flex items-start gap-3">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary ring-1 ring-primary/30 mt-0.5">
+                            {i + 1}
+                          </span>
+                          <span className="text-muted-foreground leading-relaxed">
+                            <span className="font-medium">{key}: </span>
+                            <a 
+                              href={url} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="text-primary hover:underline break-all"
+                            >
+                              {url}
+                            </a>
+                          </span>
                         </li>
-                      )}
-
-                      {selectedPaper.links.github && (
-                        <li>
-                          <a 
-                            href={selectedPaper.links.github} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
-                          >
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-500/10 text-stone-600 dark:text-stone-400 group-hover:bg-stone-800 group-hover:text-white transition-colors">
-                              <Github className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-muted-foreground font-medium group-hover:text-foreground transition-colors">
-                              Repository: View Code
-                            </span>
-                            <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </a>
-                        </li>
-                      )}
-
-                      {selectedPaper.links.data && (
-                        <li>
-                          <a 
-                            href={selectedPaper.links.data} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group"
-                          >
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-600 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
-                              <Database className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-muted-foreground font-medium group-hover:text-foreground transition-colors">
-                              Dataset: Hugging Face
-                            </span>
-                            <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </a>
-                        </li>
-                      )}
+                      ))}
                     </ul>
                   </CardContent>
                 </Card>
