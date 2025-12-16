@@ -175,18 +175,6 @@ export function Home() {
                           </Badge>
                         ))}
                       </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <a 
-                          href={paper.links.project || paper.links.github || "#"} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-xs text-primary hover:underline flex items-center gap-1 font-medium z-10 relative"
-                        >
-                          Link to original paper
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
                     </div>
                   </button>
                 ))
