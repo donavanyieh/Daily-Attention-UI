@@ -228,7 +228,7 @@ export function Home() {
                   <CardHeader className="bg-muted/10 pb-3">
                     <CardTitle className="flex items-center gap-2 text-xl font-display">
                       <Lightbulb className="h-5 w-5 text-primary" />
-                      Summary
+                      Technical Summary
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
@@ -238,7 +238,22 @@ export function Home() {
                   </CardContent>
                 </Card>
 
-                {/* 2. Key Points Card */}
+                {/* 2. Impact Card */}
+                <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-muted/10 pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl font-display">
+                      <Zap className="h-5 w-5 text-primary" />
+                      Why This Matters
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                     <p className="text-lg text-muted-foreground leading-relaxed">
+                      {selectedPaper.impact}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* 3. Key Points Card */}
                 <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="bg-muted/10 pb-3">
                     <CardTitle className="flex items-center gap-2 text-xl font-display">
@@ -259,21 +274,6 @@ export function Home() {
                         </li>
                       ))}
                     </ul>
-                  </CardContent>
-                </Card>
-
-                {/* 3. Impact Card */}
-                <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader className="bg-muted/10 pb-3">
-                    <CardTitle className="flex items-center gap-2 text-xl font-display">
-                      <Zap className="h-5 w-5 text-primary" />
-                      Why This Matters
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                     <p className="text-lg text-muted-foreground leading-relaxed">
-                      {selectedPaper.impact}
-                    </p>
                   </CardContent>
                 </Card>
 
