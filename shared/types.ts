@@ -11,3 +11,10 @@ export interface Paper {
   upvotes: number;
   tags: string[];
 }
+
+export interface DailySummary {
+  Summary: string;
+  Impact: string;
+  "Exciting Topics": string[];
+  date: string;
+}

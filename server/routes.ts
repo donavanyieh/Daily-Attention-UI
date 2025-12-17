@@ -19,5 +19,16 @@ export async function registerRoutes(
     }
   });
 
+  // GET all daily summaries
+  app.get("/api/daily-summaries", async (req, res) => {
+    try {
+      const summaries = await storage.getAllDailySummaries();
+      res.json(summaries);
+    } catch (error) {
+      console.error("Error fetching daily summaries:", error);
+      res.status(500).json({ error: "Failed to fetch daily summaries" });
+    }
+  });
+
   return httpServer;
 }

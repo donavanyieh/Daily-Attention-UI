@@ -1,8 +1,9 @@
 import { BigQuery } from "@google-cloud/bigquery";
-import type { Paper } from "@shared/types";
+import type { Paper, DailySummary } from "@shared/types";
 
 export interface IStorage {
   getAllPapers(): Promise<Paper[]>;
+  getAllDailySummaries(): Promise<DailySummary[]>;
 }
 
 export class BigQueryStorage implements IStorage {
@@ -10,17 +11,19 @@ export class BigQueryStorage implements IStorage {
   private projectId: string;
   private datasetId: string;
   private tableId: string;
+  private dailySummaryTableId: string;
 
   constructor() {
     // Load environment variables
     const serviceAccountJson = process.env.GBQ_SERVICE_ACCOUNT;
     this.projectId = process.env.GBQ_PROJECT_ID || "";
     this.datasetId = process.env.GBQ_DATASET || "";
-    this.tableId = process.env.GBQ_TABLE || "";
+    this.tableId = process.env.GBQ_PAPERS_TABLE || "";
+    this.dailySummaryTableId = process.env.GBQ_DAILY_SUMMARY_TABLE || "";
 
     if (!serviceAccountJson || !this.projectId || !this.datasetId || !this.tableId) {
       throw new Error(
-        "Missing required BigQuery environment variables: GBQ_SERVICE_ACCOUNT, GBQ_PROJECT_ID, GBQ_DATASET, GBQ_TABLE"
+        "Missing required BigQuery environment variables: GBQ_SERVICE_ACCOUNT, GBQ_PROJECT_ID, GBQ_DATASET, GBQ_PAPERS_TABLE"
       );
     }
 
@@ -71,6 +74,32 @@ export class BigQueryStorage implements IStorage {
     } catch (error) {
       console.error("Error querying BigQuery:", error);
       throw new Error(`Failed to fetch papers from BigQuery: ${error}`);
+    }
+  }
+
+  async getAllDailySummaries(): Promise<DailySummary[]> {
+    try {
+      const query = `
+        SELECT 
+          Summary,
+          Impact,
+          \`Exciting Topics\` as ExcitingTopics,
+          date
+        FROM \`${this.projectId}.${this.datasetId}.${this.dailySummaryTableId}\`
+        ORDER BY date DESC
+      `;
+
+      const [rows] = await this.bigquery.query({ query });
+
+      return rows.map((row: any) => ({
+        Summary: row.Summary,
+        Impact: row.Impact,
+        "Exciting Topics": typeof row.ExcitingTopics === "string" ? JSON.parse(row.ExcitingTopics) : row.ExcitingTopics,
+        date: row.date,
+      }));
+    } catch (error) {
+      console.error("Error querying BigQuery for daily summaries:", error);
+      throw new Error(`Failed to fetch daily summaries from BigQuery: ${error}`);
     }
   }
 }
