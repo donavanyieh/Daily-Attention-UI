@@ -27,33 +27,74 @@ export function Home() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  // Fetch papers from API
-  const { data: papers = [] } = useQuery<Paper[]>({
-    queryKey: ["/api/papers"],
+  // Fetch available dates for calendar
+  const { data: availableDates = [] } = useQuery<string[]>({
+    queryKey: ["/api/papers/dates"],
     queryFn: async () => {
-      const response = await fetch("/api/papers");
+      const response = await fetch("/api/papers/dates");
       if (!response.ok) {
-        throw new Error("Failed to fetch papers");
+        throw new Error("Failed to fetch paper dates");
+      }
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Fetch latest date papers on initial load
+  const { data: latestDateData } = useQuery<{ date: string; papers: Paper[] }>({
+    queryKey: ["/api/papers/latest-date"],
+    queryFn: async () => {
+      const response = await fetch("/api/papers/latest-date");
+      if (!response.ok) {
+        throw new Error("Failed to fetch latest date papers");
       }
       return response.json();
     },
   });
 
+  // Fetch papers for selected date (lazy loading)
+  const selectedDateString = date ? format(date, "yyyy-MM-dd") : null;
+  const { data: papersForDate = [], isLoading: isLoadingPapers } = useQuery<Paper[]>({
+    queryKey: ["/api/papers/by-date", selectedDateString],
+    queryFn: async () => {
+      if (!selectedDateString) return [];
+      const response = await fetch(`/api/papers/by-date/${selectedDateString}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch papers by date");
+      }
+      return response.json();
+    },
+    enabled: !!selectedDateString,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
+
   // Set default to latest date with papers and select first paper
   useEffect(() => {
-    if (papers.length > 0 && !date) {
-      // Find the most recent paper date
-      const sortedPapers = [...papers].sort((a, b) => 
-        parseISO(b.date).getTime() - parseISO(a.date).getTime()
-      );
-      const latestDate = parseISO(sortedPapers[0].date);
+    if (latestDateData && !date) {
+      const latestDate = parseISO(latestDateData.date);
       setDate(latestDate);
       
       // Select the first paper from that date
-      setSelectedPaperId(sortedPapers[0].id);
+      if (latestDateData.papers.length > 0) {
+        setSelectedPaperId(latestDateData.papers[0].id);
+      }
     }
-  }, [papers, date]);
+  }, [latestDateData, date]);
+
+  // Use papers from either latest date query or by-date query
+  const papers = useMemo(() => {
+    if (!date) return [];
+    
+    // If we're looking at the latest date, use latestDateData
+    if (latestDateData && format(parseISO(latestDateData.date), "yyyy-MM-dd") === selectedDateString) {
+      return latestDateData.papers;
+    }
+    
+    // Otherwise use the by-date query results
+    return papersForDate;
+  }, [date, latestDateData, papersForDate, selectedDateString]);
 
   const filteredPapers = useMemo(() => {
     return papers.filter((paper) => {
@@ -70,15 +111,14 @@ export function Home() {
     [papers, selectedPaperId]
   );
 
-  // Get unique dates that have papers
+  // Get unique dates that have papers from API
   const datesWithPapers = useMemo(() => {
-    const dates = papers.map((paper) => {
-      const paperDate = parseISO(paper.date);
+    return availableDates.map((dateString) => {
+      const paperDate = parseISO(dateString);
       // Normalize to start of day for comparison
       return new Date(paperDate.getFullYear(), paperDate.getMonth(), paperDate.getDate());
     });
-    return dates;
-  }, [papers]);
+  }, [availableDates]);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background relative">
@@ -91,7 +131,7 @@ export function Home() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Popover>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
@@ -108,7 +148,10 @@ export function Home() {
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={(selectedDate) => {
+                      setDate(selectedDate);
+                      setIsCalendarOpen(false);
+                    }}
                     initialFocus
                     disabled={(date) => date > new Date()}
                     modifiers={{
@@ -138,7 +181,14 @@ export function Home() {
 
           <ScrollArea className="flex-1">
             <div className="flex flex-col p-2 gap-2">
-              {filteredPapers.length === 0 ? (
+              {isLoadingPapers ? (
+                <div className="p-8 text-center text-muted-foreground text-sm">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <span>Loading papers...</span>
+                  </div>
+                </div>
+              ) : filteredPapers.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground text-sm">
                   No updates found for this date.
                   <br />
