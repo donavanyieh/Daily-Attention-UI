@@ -46,6 +46,18 @@ export function Header() {
               Explore Papers
             </a>
           </Link>
+          <Link href="/changelog">
+            <a
+              className={cn(
+                "text-sm transition-colors hover:text-primary",
+                location === "/changelog" 
+                  ? "text-primary font-bold" 
+                  : "text-muted-foreground font-medium"
+              )}
+            >
+              Changelog
+            </a>
+          </Link>
         </nav>
       </div>
     </header>

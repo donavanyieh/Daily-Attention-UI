@@ -85,7 +85,7 @@ export function DailyTLDR() {
                           "font-bold leading-tight group-hover:text-primary transition-colors",
                           selectedSummaryDate === summary.date ? "text-primary" : "text-foreground"
                         )}>
-                          Daily Summary - {format(parseISO(summary.date), "MMM d, yyyy")}
+                          {format(parseISO(summary.date), "MMM d, yyyy")}
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground line-clamp-3 mt-1 font-medium">
