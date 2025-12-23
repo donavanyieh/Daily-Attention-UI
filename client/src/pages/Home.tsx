@@ -294,7 +294,7 @@ export function Home() {
                       >
                         <MessageSquare className="h-5 w-5" />
                       </motion.div>
-                      Chat with Paper
+                      Chat with Paper (New Window)
                     </Button>
                   </motion.div>
                 </div>
