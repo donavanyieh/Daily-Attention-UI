@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Send, MessageSquare, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 interface ChatMessage {
   role: "user" | "model";
@@ -50,7 +51,7 @@ export function ChatWithPaper() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!input.trim() || isLoading || !paperId) return;
+    if (!input.trim() || isLoading || !paperId || !paperData) return;
 
     const userMessage: ChatMessage = {
       role: "user",
@@ -68,7 +69,11 @@ export function ChatWithPaper() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ 
+          messages: newMessages,
+          paperTitle: paperData.title,
+          paperMarkdown: paperData.markdown_text 
+        }),
       });
 
       if (!response.ok) {
@@ -185,7 +190,11 @@ export function ChatWithPaper() {
                         : "bg-muted"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                    {message.role === "user" ? (
+                      <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                    ) : (
+                      <MarkdownRenderer content={message.content} className="text-sm" />
+                    )}
                   </div>
                 </motion.div>
               ))}

@@ -15,6 +15,7 @@ declare module "http" {
 
 app.use(
   express.json({
+    limit: '10mb', // Increased limit to handle large paper markdown content
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },

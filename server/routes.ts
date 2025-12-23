@@ -87,19 +87,32 @@ export async function registerRoutes(
   app.post("/api/chat/:paperId", async (req, res) => {
     try {
       const { paperId } = req.params;
-      const { messages } = req.body as { messages: ChatMessage[] };
+      const { messages, paperTitle, paperMarkdown } = req.body as { 
+        messages: ChatMessage[]; 
+        paperTitle?: string;
+        paperMarkdown?: string;
+      };
 
       if (!messages || !Array.isArray(messages) || messages.length === 0) {
         res.status(400).json({ error: "Messages array is required" });
         return;
       }
 
-      // Fetch paper markdown
-      const markdown = await storage.getPaperMarkdown(paperId);
-      
-      if (!markdown) {
-        res.status(404).json({ error: "Paper not found or not available for chat" });
-        return;
+      // Use provided paper data or fetch from BigQuery as fallback
+      let markdown;
+      if (paperTitle && paperMarkdown) {
+        // Use paper data provided by frontend (optimization - no BigQuery call!)
+        markdown = {
+          title: paperTitle,
+          markdown_text: paperMarkdown,
+        };
+      } else {
+        // Fallback: fetch from BigQuery if not provided
+        markdown = await storage.getPaperMarkdown(paperId);
+        if (!markdown) {
+          res.status(404).json({ error: "Paper not found or not available for chat" });
+          return;
+        }
       }
 
       // Chat with Gemini

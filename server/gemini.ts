@@ -44,7 +44,8 @@ Instructions:
 - Answer questions about this paper based on the content above
 - Be concise and cite specific sections when relevant
 - If asked about something not in the paper, politely indicate that
-- Provide technical insights when appropriate`;
+- Provide technical insights when appropriate
+- Use markdown formatting for better readability (headings, lists, code blocks, etc.)`;
 
     // Convert messages to Gemini format
     const chatHistory = messages.map((msg) => ({
