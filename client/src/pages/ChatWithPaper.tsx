@@ -155,7 +155,7 @@ export function ChatWithPaper() {
           </div>
           <div className="min-w-0">
             <h1 className="font-bold text-lg truncate">{paperData.title}</h1>
-            <p className="text-sm text-muted-foreground">Chat with this paper</p>
+            <p className="text-sm text-muted-foreground">Chat with this paper! Chat is still in preliminary development, please validate outputs for hallucination.</p>
           </div>
         </div>
       </div>
