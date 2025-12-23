@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Home } from "@/pages/Home";
 import { DailyTLDR } from "@/pages/DailyTLDR";
+import { ChatWithPaper } from "@/pages/ChatWithPaper";
 import { Header } from "@/components/Header";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Switch>
         <Route path="/" component={DailyTLDR} />
         <Route path="/explore-papers" component={Home} />
+        <Route path="/chat/:paperId" component={ChatWithPaper} />
       </Switch>
     </div>
   );

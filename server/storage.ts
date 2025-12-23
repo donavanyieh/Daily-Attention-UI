@@ -1,12 +1,19 @@
 import { BigQuery } from "@google-cloud/bigquery";
 import type { Paper, DailySummary } from "@shared/types";
 
+export interface PaperMarkdown {
+  id: string;
+  title: string;
+  markdown_text: string;
+}
+
 export interface IStorage {
   getAllPapers(): Promise<Paper[]>;
   getAllDailySummaries(): Promise<DailySummary[]>;
   getAvailablePaperDates(): Promise<string[]>;
   getPapersByDate(date: string): Promise<Paper[]>;
   getLatestDatePapers(): Promise<{ date: string; papers: Paper[] }>;
+  getPaperMarkdown(paperId: string): Promise<PaperMarkdown | null>;
 }
 
 export class BigQueryStorage implements IStorage {
@@ -15,6 +22,7 @@ export class BigQueryStorage implements IStorage {
   private datasetId: string;
   private tableId: string;
   private dailySummaryTableId: string;
+  private markdownTableId: string;
 
   constructor() {
     // Load environment variables
@@ -23,10 +31,11 @@ export class BigQueryStorage implements IStorage {
     this.datasetId = process.env.GBQ_DATASET || "";
     this.tableId = process.env.GBQ_PAPERS_TABLE || "";
     this.dailySummaryTableId = process.env.GBQ_DAILY_SUMMARY_TABLE || "";
+    this.markdownTableId = process.env.GBQ_MARKDOWN_TABLE || "";
 
-    if (!serviceAccountJson || !this.projectId || !this.datasetId || !this.tableId) {
+    if (!serviceAccountJson || !this.projectId || !this.datasetId || !this.tableId || !this.markdownTableId) {
       throw new Error(
-        "Missing required BigQuery environment variables: GBQ_SERVICE_ACCOUNT, GBQ_PROJECT_ID, GBQ_DATASET, GBQ_PAPERS_TABLE"
+        "Missing required BigQuery environment variables: GBQ_SERVICE_ACCOUNT, GBQ_PROJECT_ID, GBQ_DATASET, GBQ_PAPERS_TABLE, GBQ_MARKDOWN_TABLE"
       );
     }
 
@@ -194,6 +203,41 @@ export class BigQueryStorage implements IStorage {
     } catch (error) {
       console.error("Error querying BigQuery for latest date papers:", error);
       throw new Error(`Failed to fetch latest date papers from BigQuery: ${error}`);
+    }
+  }
+
+  async getPaperMarkdown(paperId: string): Promise<PaperMarkdown | null> {
+    try {
+      const query = `
+        SELECT 
+          id,
+          title,
+          markdown_text
+        FROM \`${this.projectId}.${this.datasetId}.${this.markdownTableId}\`
+        WHERE id = @paperId
+        LIMIT 1
+      `;
+
+      const options = {
+        query: query,
+        params: { paperId: paperId },
+      };
+
+      const [rows] = await this.bigquery.query(options);
+
+      if (rows.length === 0) {
+        return null;
+      }
+
+      const row = rows[0];
+      return {
+        id: row.id,
+        title: row.title,
+        markdown_text: row.markdown_text,
+      };
+    } catch (error) {
+      console.error("Error querying BigQuery for paper markdown:", error);
+      throw new Error(`Failed to fetch paper markdown from BigQuery: ${error}`);
     }
   }
 }

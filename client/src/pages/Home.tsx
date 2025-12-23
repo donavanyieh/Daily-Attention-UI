@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useLocation } from "wouter";
 import { type Paper } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,8 @@ import {
   Globe, 
   Lightbulb, 
   Target,
-  Zap
+  Zap,
+  MessageSquare
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,6 +30,7 @@ export function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [, setLocation] = useLocation();
 
   // Fetch available dates for calendar
   const { data: availableDates = [] } = useQuery<string[]>({
@@ -273,6 +276,18 @@ export function Home() {
               </div>
 
               <div className="grid gap-6">
+                {/* Chat with Paper Button */}
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => window.open(`/chat/${selectedPaper.id}`, '_blank')}
+                    className="gap-2"
+                    size="lg"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    Chat with Paper
+                  </Button>
+                </div>
+
                 {/* 1. Summary Card */}
                 <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="bg-muted/10 pb-3">

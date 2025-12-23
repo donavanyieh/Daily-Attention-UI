@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { chatWithPaper, type ChatMessage } from "./gemini";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -61,6 +62,59 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching daily summaries:", error);
       res.status(500).json({ error: "Failed to fetch daily summaries" });
+    }
+  });
+
+  // GET paper markdown by ID
+  app.get("/api/papers/:id/markdown", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const markdown = await storage.getPaperMarkdown(id);
+      
+      if (!markdown) {
+        res.status(404).json({ error: "Paper markdown not found" });
+        return;
+      }
+      
+      res.json(markdown);
+    } catch (error) {
+      console.error("Error fetching paper markdown:", error);
+      res.status(500).json({ error: "Failed to fetch paper markdown" });
+    }
+  });
+
+  // POST chat with paper
+  app.post("/api/chat/:paperId", async (req, res) => {
+    try {
+      const { paperId } = req.params;
+      const { messages } = req.body as { messages: ChatMessage[] };
+
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        res.status(400).json({ error: "Messages array is required" });
+        return;
+      }
+
+      // Fetch paper markdown
+      const markdown = await storage.getPaperMarkdown(paperId);
+      
+      if (!markdown) {
+        res.status(404).json({ error: "Paper not found or not available for chat" });
+        return;
+      }
+
+      // Chat with Gemini
+      const response = await chatWithPaper(messages, {
+        title: markdown.title,
+        markdownText: markdown.markdown_text,
+      });
+
+      res.json({ response });
+    } catch (error) {
+      console.error("Error in chat endpoint:", error);
+      res.status(500).json({ 
+        error: "Failed to generate response",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
