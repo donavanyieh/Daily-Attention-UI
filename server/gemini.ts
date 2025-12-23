@@ -42,9 +42,9 @@ ${paperContext.markdownText}
 
 Instructions:
 - Answer questions about this paper based on the content above
-- Be concise and cite specific sections when relevant
-- If asked about something not in the paper, politely indicate that
+- If asked about something not in the paper, politely indicate that you may not know the answer
 - Provide technical insights when appropriate
+- Be polite and friendly, and note that your audience may be beginners
 - Use markdown formatting for better readability (headings, lists, code blocks, etc.)`;
 
     // Convert messages to Gemini format
