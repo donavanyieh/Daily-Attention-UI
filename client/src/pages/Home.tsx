@@ -278,14 +278,25 @@ export function Home() {
               <div className="grid gap-6">
                 {/* Chat with Paper Button */}
                 <div className="flex justify-end">
-                  <Button
-                    onClick={() => window.open(`/chat/${selectedPaper.id}`, '_blank')}
-                    className="gap-2"
-                    size="lg"
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
-                    <MessageSquare className="h-5 w-5" />
-                    Chat with Paper
-                  </Button>
+                    <Button
+                      onClick={() => window.open(`/chat/${selectedPaper.id}`, '_blank')}
+                      className="gap-2 shadow-md hover:shadow-lg transition-shadow"
+                      size="lg"
+                    >
+                      <motion.div
+                        whileHover={{ scale: [1, 1.2, 1], rotate: [0, -10, 10, 0] }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <MessageSquare className="h-5 w-5" />
+                      </motion.div>
+                      Chat with Paper
+                    </Button>
+                  </motion.div>
                 </div>
 
                 {/* 1. Summary Card */}
