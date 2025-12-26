@@ -8,7 +8,8 @@ import {
   Calendar as CalendarIcon, 
   Lightbulb, 
   Zap,
-  Sparkles
+  Sparkles,
+  Headphones
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -122,6 +123,39 @@ export function DailyTLDR() {
               </div>
 
               <div className="grid gap-6">
+                {/* Podcast Player Card */}
+                <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-muted/10 pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl font-display">
+                      <Headphones className="h-5 w-5 text-primary" />
+                      Listen to Podcast
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <audio 
+                      key={selectedSummary.date}
+                      controls 
+                      className="w-full"
+                      preload="metadata"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                        const errorMsg = target.nextElementSibling as HTMLElement;
+                        if (errorMsg) errorMsg.style.display = 'block';
+                      }}
+                    >
+                      <source 
+                        src={`https://storage.googleapis.com/daily_attention_podcasts/all_podcasts/${selectedSummary.date}.mp3`}
+                        type="audio/mpeg" 
+                      />
+                      Your browser does not support the audio element.
+                    </audio>
+                    <p className="text-sm text-muted-foreground mt-2 hidden">
+                      Podcast not available for this date.
+                    </p>
+                  </CardContent>
+                </Card>
+
                 {/* 1. Summary Card */}
                 <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="bg-muted/10 pb-3">
