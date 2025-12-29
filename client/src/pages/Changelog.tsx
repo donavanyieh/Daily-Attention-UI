@@ -7,6 +7,19 @@ import { FileText } from "lucide-react";
 const changelogEntries = [
   {
     id: 1,
+    content: `# December 30, 2025
+
+## New Features
+- Removed the bullshit fluff from podcast. No longer will you hear weird upselling
+
+## Details
+- Fixing the fluff was more of a prompt engineering one. There's some wish to change the voice perhaps using eleven labs but that may be for another day
+- Gonna leave the infographic as is
+- Might go on hiatus and work on another project
+`
+  },
+  {
+    id: 2,
     content: `# December 29, 2025
 
 ## New Features
@@ -24,7 +37,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 2,
+    id: 3,
     content: `# December 23, 2025
 
 ## New Features
@@ -43,7 +56,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 3,
+    id: 4,
     content: `# December 21, 2025
 
 ## DailyTLDR feature added
@@ -55,7 +68,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 4,
+    id: 5,
     content: `# December 18, 2025
 
 ## Attention Daily is live!
