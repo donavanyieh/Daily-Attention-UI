@@ -131,7 +131,20 @@ export function DailyTLDR() {
                       Listen to Podcast
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-4">
+                  <CardContent className="pt-4 space-y-4">
+                    {/* Infographic */}
+                    <img 
+                      key={`infographic-${selectedSummary.date}`}
+                      src={`https://storage.googleapis.com/daily_attention_infographic/all_infographics/${selectedSummary.date}.png`}
+                      alt={`Infographic for ${format(parseISO(selectedSummary.date), "MMMM d, yyyy")}`}
+                      className="w-full rounded-lg"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                      }}
+                    />
+                    
+                    {/* Audio Player */}
                     <audio 
                       key={selectedSummary.date}
                       controls 
