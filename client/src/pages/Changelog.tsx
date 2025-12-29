@@ -7,6 +7,24 @@ import { FileText } from "lucide-react";
 const changelogEntries = [
   {
     id: 1,
+    content: `# December 29, 2025
+
+## New Features
+- Added podcast and infographic
+
+## Details
+- It is what it sounds like, we now generate infographics per daily summary, and a short voice transcript (typically ~600 words/ 3-4min)
+- For the podcast, we still stick within the gemini ecosystem, using gemini to seperately generate transcript and generate mp3 file
+- Imagery is similiar, using nanobanana
+
+## Tech stuff
+- Both remains to be improved - podcast transcript not ideal, I'd personally like it to be more straightforward and less 'fluffly'.
+- Imagery is not really, trying hard to prompt such that the structure of the infographic is more categorical and cites research - but may move beyond a prompt engineering problem
+- I may choose to keep it that way to keep things simple and not run up my personal API costs, but already proved POC capability
+`
+  },
+  {
+    id: 2,
     content: `# December 23, 2025
 
 ## New Features
@@ -25,7 +43,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 2,
+    id: 3,
     content: `# December 21, 2025
 
 ## DailyTLDR feature added
@@ -37,7 +55,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 3,
+    id: 4,
     content: `# December 18, 2025
 
 ## Attention Daily is live!
