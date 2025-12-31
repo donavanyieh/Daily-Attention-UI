@@ -5,8 +5,17 @@ import { FileText } from "lucide-react";
 
 // Sample changelog entries - you can easily update these
 const changelogEntries = [
-  {
+    {
     id: 1,
+    content: `# December 31, 2025
+
+## New Features
+- Minor UI change: we now only load 10 daily TLDRs at a time instead of reading everything to memory
+- Happy new year!
+`
+  },
+  {
+    id: 2,
     content: `# December 30, 2025
 
 ## New Features
@@ -19,7 +28,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 2,
+    id: 3,
     content: `# December 29, 2025
 
 ## New Features
@@ -37,7 +46,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 3,
+    id: 4,
     content: `# December 23, 2025
 
 ## New Features
@@ -56,7 +65,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 4,
+    id: 5,
     content: `# December 21, 2025
 
 ## DailyTLDR feature added
@@ -68,7 +77,7 @@ const changelogEntries = [
 `
   },
   {
-    id: 5,
+    id: 6,
     content: `# December 18, 2025
 
 ## Attention Daily is live!

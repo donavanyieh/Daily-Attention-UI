@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { type DailySummary } from "@shared/types";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -9,39 +9,64 @@ import {
   Lightbulb, 
   Zap,
   Sparkles,
-  Headphones
+  Headphones,
+  Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+interface PaginatedResponse {
+  summaries: DailySummary[];
+  total: number;
+  hasMore: boolean;
+  limit: number;
+  offset: number;
+}
 
 export function DailyTLDR() {
   const [selectedSummaryDate, setSelectedSummaryDate] = useState<string | null>(null);
 
-  // Fetch daily summaries from API
-  const { data: summaries = [] } = useQuery<DailySummary[]>({
-    queryKey: ["/api/daily-summaries"],
-    queryFn: async () => {
-      const response = await fetch("/api/daily-summaries");
+  // Fetch daily summaries with pagination
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading
+  } = useInfiniteQuery<PaginatedResponse>({
+    queryKey: ["/api/daily-summaries/paginated"],
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await fetch(
+        `/api/daily-summaries/paginated?limit=10&offset=${pageParam}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch daily summaries");
       }
       return response.json();
     },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.hasMore) {
+        return lastPage.offset + lastPage.limit;
+      }
+      return undefined;
+    },
+    initialPageParam: 0,
   });
 
-  // Sort summaries by date (newest first)
-  const sortedSummaries = useMemo(() => {
-    return [...summaries].sort((a, b) => 
-      parseISO(b.date).getTime() - parseISO(a.date).getTime()
-    );
-  }, [summaries]);
+  // Flatten all pages into a single array
+  const summaries = useMemo(() => {
+    return data?.pages.flatMap((page) => page.summaries) ?? [];
+  }, [data]);
+
+  const totalCount = data?.pages[0]?.total ?? 0;
 
   // Select the first (most recent) summary by default
   useEffect(() => {
-    if (sortedSummaries.length > 0 && !selectedSummaryDate) {
-      setSelectedSummaryDate(sortedSummaries[0].date);
+    if (summaries.length > 0 && !selectedSummaryDate) {
+      setSelectedSummaryDate(summaries[0].date);
     }
-  }, [sortedSummaries, selectedSummaryDate]);
+  }, [summaries, selectedSummaryDate]);
 
   const selectedSummary = useMemo(() => 
     summaries.find((s) => s.date === selectedSummaryDate), 
@@ -58,43 +83,76 @@ export function DailyTLDR() {
               <span className="font-display font-bold text-lg">Daily Summaries</span>
             </div>
             <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              {sortedSummaries.length} Total Summaries
+              {summaries.length} of {totalCount} Loaded
             </div>
           </div>
 
           <ScrollArea className="flex-1">
             <div className="flex flex-col p-2 gap-2">
-              {sortedSummaries.length === 0 ? (
+              {isLoading ? (
+                <div className="p-8 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  Loading summaries...
+                </div>
+              ) : summaries.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground text-sm">
                   No summaries available yet.
                 </div>
               ) : (
-                sortedSummaries.map((summary) => (
-                  <button
-                    key={summary.date}
-                    onClick={() => setSelectedSummaryDate(summary.date)}
-                    className={cn(
-                      "flex flex-col items-start gap-2 rounded-lg p-4 text-left text-sm transition-all hover:bg-muted group whitespace-normal",
-                      selectedSummaryDate === summary.date 
-                        ? "bg-primary/10 hover:bg-primary/15 border-l-2 border-primary" 
-                        : "bg-transparent border-l-2 border-transparent"
-                    )}
-                  >
-                    <div className="flex w-full flex-col gap-1">
-                      <div className="flex items-center justify-between w-full">
-                        <span className={cn(
-                          "font-bold leading-tight group-hover:text-primary transition-colors",
-                          selectedSummaryDate === summary.date ? "text-primary" : "text-foreground"
-                        )}>
-                          {format(parseISO(summary.date), "MMM d, yyyy")}
-                        </span>
+                <>
+                  {summaries.map((summary: DailySummary) => (
+                    <button
+                      key={summary.date}
+                      onClick={() => setSelectedSummaryDate(summary.date)}
+                      className={cn(
+                        "flex flex-col items-start gap-2 rounded-lg p-4 text-left text-sm transition-all hover:bg-muted group whitespace-normal",
+                        selectedSummaryDate === summary.date 
+                          ? "bg-primary/10 hover:bg-primary/15 border-l-2 border-primary" 
+                          : "bg-transparent border-l-2 border-transparent"
+                      )}
+                    >
+                      <div className="flex w-full flex-col gap-1">
+                        <div className="flex items-center justify-between w-full">
+                          <span className={cn(
+                            "font-bold leading-tight group-hover:text-primary transition-colors",
+                            selectedSummaryDate === summary.date ? "text-primary" : "text-foreground"
+                          )}>
+                            {format(parseISO(summary.date), "MMM d, yyyy")}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground line-clamp-3 mt-1 font-medium">
+                          {summary.Summary.substring(0, 150)}...
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground line-clamp-3 mt-1 font-medium">
-                        {summary.Summary.substring(0, 150)}...
-                      </div>
-                    </div>
-                  </button>
-                ))
+                    </button>
+                  ))}
+                  
+                  {/* Load More Button */}
+                  {hasNextPage && (
+                    <motion.div
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                      className="p-2"
+                    >
+                      <Button
+                        onClick={() => fetchNextPage()}
+                        disabled={isFetchingNextPage}
+                        variant="outline"
+                        className="w-full transition-all hover:shadow-lg hover:border-primary/50 hover:text-primary"
+                      >
+                        {isFetchingNextPage ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Loading...
+                          </>
+                        ) : (
+                          "Load More"
+                        )}
+                      </Button>
+                    </motion.div>
+                  )}
+                </>
               )}
             </div>
           </ScrollArea>

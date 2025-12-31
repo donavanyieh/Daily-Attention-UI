@@ -10,6 +10,8 @@ export interface PaperMarkdown {
 export interface IStorage {
   getAllPapers(): Promise<Paper[]>;
   getAllDailySummaries(): Promise<DailySummary[]>;
+  getDailySummariesPaginated(limit: number, offset: number): Promise<DailySummary[]>;
+  getDailySummariesCount(): Promise<number>;
   getAvailablePaperDates(): Promise<string[]>;
   getPapersByDate(date: string): Promise<Paper[]>;
   getLatestDatePapers(): Promise<{ date: string; papers: Paper[] }>;
@@ -112,6 +114,55 @@ export class BigQueryStorage implements IStorage {
     } catch (error) {
       console.error("Error querying BigQuery for daily summaries:", error);
       throw new Error(`Failed to fetch daily summaries from BigQuery: ${error}`);
+    }
+  }
+
+  async getDailySummariesPaginated(limit: number, offset: number): Promise<DailySummary[]> {
+    try {
+      const query = `
+        SELECT 
+          Summary,
+          Impact,
+          \`Exciting Topics\` as ExcitingTopics,
+          date
+        FROM \`${this.projectId}.${this.datasetId}.${this.dailySummaryTableId}\`
+        ORDER BY date DESC
+        LIMIT @limit
+        OFFSET @offset
+      `;
+
+      const options = {
+        query: query,
+        params: { limit, offset },
+      };
+
+      const [rows] = await this.bigquery.query(options);
+
+      return rows.map((row: any) => ({
+        Summary: row.Summary,
+        Impact: row.Impact,
+        "Exciting Topics": typeof row.ExcitingTopics === "string" ? JSON.parse(row.ExcitingTopics) : row.ExcitingTopics,
+        date: row.date,
+      }));
+    } catch (error) {
+      console.error("Error querying BigQuery for paginated daily summaries:", error);
+      throw new Error(`Failed to fetch paginated daily summaries from BigQuery: ${error}`);
+    }
+  }
+
+  async getDailySummariesCount(): Promise<number> {
+    try {
+      const query = `
+        SELECT COUNT(*) as count
+        FROM \`${this.projectId}.${this.datasetId}.${this.dailySummaryTableId}\`
+      `;
+
+      const [rows] = await this.bigquery.query({ query });
+
+      return rows[0].count;
+    } catch (error) {
+      console.error("Error querying BigQuery for daily summaries count:", error);
+      throw new Error(`Failed to fetch daily summaries count from BigQuery: ${error}`);
     }
   }
 

@@ -54,7 +54,7 @@ export async function registerRoutes(
     }
   });
 
-  // GET all daily summaries
+  // GET all daily summaries (kept for backward compatibility)
   app.get("/api/daily-summaries", async (req, res) => {
     try {
       const summaries = await storage.getAllDailySummaries();
@@ -62,6 +62,30 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching daily summaries:", error);
       res.status(500).json({ error: "Failed to fetch daily summaries" });
+    }
+  });
+
+  // GET daily summaries with pagination
+  app.get("/api/daily-summaries/paginated", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      const [summaries, total] = await Promise.all([
+        storage.getDailySummariesPaginated(limit, offset),
+        storage.getDailySummariesCount()
+      ]);
+
+      res.json({
+        summaries,
+        total,
+        hasMore: offset + summaries.length < total,
+        limit,
+        offset
+      });
+    } catch (error) {
+      console.error("Error fetching paginated daily summaries:", error);
+      res.status(500).json({ error: "Failed to fetch paginated daily summaries" });
     }
   });
 
